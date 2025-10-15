@@ -1,7 +1,11 @@
 package com.scaler.lld_naman.tictactoe.models;
 
+import com.scaler.lld_naman.tictactoe.strategies.winningstrategies.WinningStrategy;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Game {
     private List<Move> moves;
@@ -12,8 +16,12 @@ public class Game {
     private GameStatus gameStatus;
     private Player winner;
 
+    public static Builder getBuilder(){
+        return new Builder();
+    }
 
-    public Game(int dimensions, List<Player> players, List<WinningStrategy> winningStrategies) {
+
+    private Game(int dimensions, List<Player> players, List<WinningStrategy> winningStrategies) {
         this.moves = new ArrayList<>();
         this.board = new Board(3);
         this.players = players;
@@ -31,11 +39,11 @@ public class Game {
         this.board = board;
     }
 
-    public List<List<Player>> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(List<List<Player>> players) {
+    public void setPlayers(List<Player> players) {
         this.players = players;
     }
 
@@ -69,5 +77,160 @@ public class Game {
 
     public void setWinner(Player winner) {
         this.winner = winner;
+    }
+
+    public void printBoard(){
+        this.board.print();
+    }
+
+    public void printResult(){
+        if(gameStatus == GameStatus.ENDED){
+            System.out.println("Game has ended");
+            System.out.println("Winner is " + winner);
+        }else {
+            System.out.println("Game is a draw");
+        }
+    }
+
+    private boolean validateMove(Cell cell) {
+        int row = cell.getRow();
+        int col = cell.getCol();
+
+        if(row<0 || col<0 || row>= board.getSize() || col>= board.getSize()){
+            return false;
+        }
+
+        if(board.getBoard().get(row).get(col).getCellStatus() != CellState.EMPTY){
+            return true;
+        }
+        return false;
+    }
+
+    public void makeMove() {
+        Player currentPlayer = players.get(currentPlayerIndex);
+        Cell proposedCell = currentPlayer.makeMove();
+
+        if( !validateMove(proposedCell)){
+            return;
+        }
+
+        Cell cellInboard = board.getBoard().get(proposedCell.getRow()).get(proposedCell.getCol());
+        cellInboard.setPlayer(currentPlayer);
+        cellInboard.setStatus(CellState.FILLED);
+
+        Move move = new Move(currentPlayer, cellInboard);
+        moves.add(move);
+
+        if (checkGameWon(move, currentPlayer)) return;
+
+        if (checkDraw()) return;
+
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+    }
+
+    private boolean checkDraw() {
+        if(moves.size() == board.getSize() * board.getSize()){
+            gameStatus = GameStatus.DRAW;
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkGameWon(Move move, Player currentPlayer) {
+        for(WinningStrategy winningStrategy : winningStrategies){
+            if(winningStrategy.checkWinner(board, move)){
+                winner = currentPlayer;
+                gameStatus = GameStatus.ENDED;
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+//    public void printWinner() {
+//        System.out.println("Winner is:" + winner);
+//    }
+
+
+
+
+
+
+
+
+    public static class Builder{
+
+        private int dimensions;
+        private List<Player> players;
+        private List<WinningStrategy> winningStrategies;
+
+        private Builder(){
+            this.players = new ArrayList<>();
+            this.winningStrategies = new ArrayList<>();
+            this.dimensions = 0;
+        };
+
+
+        public Builder setDimension(int dimensions) {
+            this.dimensions = dimensions;
+            return this;
+        }
+
+        public Builder setPlayers(List<Player> players) {
+            this.players = players;
+            return this;
+        }
+
+        public Builder setWinningStrategies(List<WinningStrategy> winningStrategies) {
+            this.winningStrategies = winningStrategies;
+            return this;
+        }
+
+
+        private boolean valid() {
+
+            if(this.players.size() <2){
+                return false;
+            }
+
+            if(this.players.size() != this.dimensions-1 ){
+                return false;
+            }
+
+            int botCount = 0;
+
+            for(Player player : this.players){
+                if(player.getPlayerType().equals(PlayerType.BOT)){
+                    botCount++;
+                }
+            }
+
+            if(botCount > 1){
+                return false;
+            }
+
+            Set<Character> existingSymbols = new HashSet<>();
+            for(Player player : this.players){
+                if(!existingSymbols.contains(player.getSymbol().getChar())){
+                    existingSymbols.add(player.getSymbol().getChar());
+                }else{
+                    return false;
+                }
+            }
+
+           return true;
+        }
+
+        public Game build(){
+
+            if(!valid()){
+                throw new RuntimeException("Please enter valid data to create game");
+            }
+            Game game = new Game(dimensions, players, winningStrategies);
+            return game;
+        }
+
+
     }
 }

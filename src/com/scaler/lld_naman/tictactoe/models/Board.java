@@ -37,4 +37,21 @@ public class Board {
     public void setSize(int size) {
         this.size = size;
     }
+
+    public void print(){
+        for(List<Cell> row : board){
+            System.out.println("|");
+
+            for(Cell cell : row){
+                // Moving below code to Cell class for displaying the row.
+//                if(cell.getStatus().equals(CellState.EMPTY)){
+//                    System.out.print(" - |")
+//                }else{
+//                    System.out.print(" " + cell.getPlayer().getSymbol().getChar() + " |");
+//                }
+                cell.display();
+            }
+            System.out.println();
+        }
+    }
 }

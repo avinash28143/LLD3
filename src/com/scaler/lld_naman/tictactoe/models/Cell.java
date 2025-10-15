@@ -30,7 +30,7 @@ public class Cell {
         this.col = col;
     }
 
-    public CellState getStatus() {
+    public CellState getCellStatus() {
         return status;
     }
 
@@ -44,5 +44,13 @@ public class Cell {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    public void display(){
+        if(getCellStatus().equals(CellState.EMPTY)){
+            System.out.print(" - |");
+        }else{
+            System.out.print(" " + getPlayer().getSymbol().getChar() + " |");
+        }
     }
 }

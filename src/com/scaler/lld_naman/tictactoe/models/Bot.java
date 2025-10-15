@@ -16,4 +16,8 @@ public class Bot extends Player{
     public void setBotDifficultyLevel(BotDifficultyLevel botDifficultyLevel) {
         this.botDifficultyLevel = botDifficultyLevel;
     }
+
+    Cell makeMove(){
+        return null;
+    }
 }
