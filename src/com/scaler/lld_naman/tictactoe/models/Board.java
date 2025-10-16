@@ -40,7 +40,7 @@ public class Board {
 
     public void print(){
         for(List<Cell> row : board){
-            System.out.println("|");
+            System.out.print("|");
 
             for(Cell cell : row){
                 // Moving below code to Cell class for displaying the row.

@@ -85,8 +85,9 @@ public class Game {
 
     public void printResult(){
         if(gameStatus == GameStatus.ENDED){
+
             System.out.println("Game has ended");
-            System.out.println("Winner is " + winner);
+            System.out.println("Winner is " + winner.getName());
         }else {
             System.out.println("Game is a draw");
         }
@@ -100,7 +101,7 @@ public class Game {
             return false;
         }
 
-        if(board.getBoard().get(row).get(col).getCellStatus() != CellState.EMPTY){
+        if(board.getBoard().get(row).get(col).getCellStatus() == CellState.EMPTY){
             return true;
         }
         return false;
@@ -108,15 +109,19 @@ public class Game {
 
     public void makeMove() {
         Player currentPlayer = players.get(currentPlayerIndex);
-        Cell proposedCell = currentPlayer.makeMove();
+        System.out.println("This is "+ currentPlayer.getName() + "'s turn.");
+        Cell proposedCell = currentPlayer.makeMove(board);
 
+        System.out.println("Move made at row: " + proposedCell.getRow() + " col: " + proposedCell.getCol());
         if( !validateMove(proposedCell)){
+            System.out.println("Invalid move. Please try again.");
             return;
         }
 
         Cell cellInboard = board.getBoard().get(proposedCell.getRow()).get(proposedCell.getCol());
-        cellInboard.setPlayer(currentPlayer);
         cellInboard.setStatus(CellState.FILLED);
+        cellInboard.setPlayer(currentPlayer);
+
 
         Move move = new Move(currentPlayer, cellInboard);
         moves.add(move);
@@ -125,7 +130,8 @@ public class Game {
 
         if (checkDraw()) return;
 
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        currentPlayerIndex = currentPlayerIndex + 1;
+        currentPlayerIndex = currentPlayerIndex % players.size();
     }
 
     private boolean checkDraw() {
@@ -147,6 +153,30 @@ public class Game {
         return false;
     }
 
+    public void undo(){
+
+        if(moves.size() == 0){
+            System.out.println("No moves present to undo");
+            return;
+        }
+
+        Move lastMove = moves.get(moves.size()-1);
+
+        for(WinningStrategy winningStrategy : winningStrategies){
+            winningStrategy.handleUndo(board, lastMove);
+        }
+
+        Cell lastMoveCell = lastMove.getCell();
+        lastMoveCell.setStatus(CellState.EMPTY);
+        lastMoveCell.setPlayer(null);
+
+        moves.remove(lastMove);
+
+
+        currentPlayerIndex -= currentPlayerIndex;
+        currentPlayerIndex = currentPlayerIndex + players.size();
+        currentPlayerIndex = currentPlayerIndex % players.size();
+    }
 
 //    public void printWinner() {
 //        System.out.println("Winner is:" + winner);

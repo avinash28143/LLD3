@@ -16,17 +16,20 @@ public class Main {
 
         //Game game = gameController.createGame();
         Game game;
+        List<Player> players = List.of(
+                new Player("Avinash", new Symbol('X'), PlayerType.HUMAN),
+                new Bot("Robo", new Symbol('o'), BotDifficultyLevel.EASY)
+        );
+        int dimensions = 3;
+
         try{
             game = gameController.createGame(
-                    3,
+                    dimensions,
+                    players,
                     List.of(
-                            new Player("Avinash", new Symbol('x'), PlayerType.HUMAN),
-                            new Bot("Robo", new Symbol('o'), BotDifficultyLevel.EASY)
-                    ),
-                    List.of(
-                            new OrderOneRowWinningStrategy(),
-                            new OrderOneColumnWinningStrategy(),
-                            new OrderOneDiagonalWinningStrategy()
+                            new OrderOneRowWinningStrategy(dimensions, players),
+                            new OrderOneColumnWinningStrategy(dimensions, players),
+                            new OrderOneDiagonalWinningStrategy(dimensions, players)
                     )
             );
         }catch (Exception e){
@@ -35,14 +38,14 @@ public class Main {
         }
 
 
-
+        System.out.println("-------------Game Starting-------------");
         // While Game status is in Progress
         while(gameController.getGameStatus(game).equals(GameStatus.IN_PROGRESS)){
             //Print board
             gameController.diplayBoard(game);
 
             //print if undo
-            System.out.println("Do you want to undo the recent move? (y/n)");
+            System.out.println("Does anyone want to undo the recent move? (y/n)");
             Scanner sc = new Scanner(System.in);
             String input = sc.next();
             //print yes -> call undo
