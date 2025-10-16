@@ -1,5 +1,6 @@
 package com.scaler.lld_naman.tictactoe.models;
 
+import com.scaler.lld_naman.tictactoe.exceptions.InvalidGameParamsException;
 import com.scaler.lld_naman.tictactoe.strategies.winningstrategies.WinningStrategy;
 
 import java.util.ArrayList;
@@ -252,10 +253,10 @@ public class Game {
            return true;
         }
 
-        public Game build(){
+        public Game build() throws InvalidGameParamsException {
 
             if(!valid()){
-                throw new RuntimeException("Please enter valid data to create game");
+                throw new InvalidGameParamsException("Invalid parameters for game creation");
             }
             Game game = new Game(dimensions, players, winningStrategies);
             return game;

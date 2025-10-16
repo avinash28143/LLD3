@@ -1,6 +1,7 @@
 package com.scaler.lld_naman.tictactoe;
 
 import com.scaler.lld_naman.tictactoe.controllers.GameController;
+import com.scaler.lld_naman.tictactoe.exceptions.InvalidGameParamsException;
 import com.scaler.lld_naman.tictactoe.models.*;
 import com.scaler.lld_naman.tictactoe.strategies.winningstrategies.OrderOneColumnWinningStrategy;
 import com.scaler.lld_naman.tictactoe.strategies.winningstrategies.OrderOneDiagonalWinningStrategy;
@@ -32,8 +33,8 @@ public class Main {
                             new OrderOneDiagonalWinningStrategy(dimensions, players)
                     )
             );
-        }catch (Exception e){
-            System.out.println("Something went wrong!");
+        }catch (InvalidGameParamsException e){
+            System.out.println("Seems like something went wrong while creating the game. Please try again");
             return;
         }
 
